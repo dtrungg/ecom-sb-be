@@ -25,6 +25,7 @@ public class OrderController {
     private final IOrderService orderService;
     private final LocalizationUtils localizationUtils;
     @PostMapping("")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> createOrder(
             @Valid @RequestBody OrderDTO orderDTO,
             BindingResult result
@@ -67,6 +68,7 @@ public class OrderController {
     @PutMapping("/{id}")
     //PUT http://localhost:8088/api/v1/orders/2
     //công việc của admin
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateOrder(
             @Valid @PathVariable long id,
             @Valid @RequestBody OrderDTO orderDTO) {
@@ -79,6 +81,7 @@ public class OrderController {
         }
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteOrder(@Valid @PathVariable Long id) {
         //xóa mềm => cập nhật trường active = false
         orderService.deleteOrder(id);
@@ -87,7 +90,6 @@ public class OrderController {
         return ResponseEntity.ok().body(result);
     }
     @GetMapping("/get-orders-by-keyword")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<OrderListResponse> getOrdersByKeyword(
             @RequestParam(defaultValue = "", required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
