@@ -9,6 +9,8 @@ import com.project.shopapp.responses.ProductListResponse;
 import com.project.shopapp.responses.ProductResponse;
 import com.project.shopapp.services.IProductService;
 import com.project.shopapp.utils.MessageKeys;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -209,6 +211,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<String> deleteProduct(@PathVariable long id) {
         try {
             productService.deleteProduct(id);
@@ -243,6 +246,7 @@ public class ProductController {
     //update a product
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<?> updateProduct(
             @PathVariable long id,
             @RequestBody ProductDTO productDTO) {
