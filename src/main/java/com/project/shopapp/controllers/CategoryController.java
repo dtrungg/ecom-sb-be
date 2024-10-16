@@ -25,9 +25,8 @@ import java.util.List;
 //Dependency Injection
 @RequiredArgsConstructor
 public class CategoryController {
+
     private final CategoryService categoryService;
-    private final LocaleResolver localeResolver;
-    private final MessageSource messageSource;
     private final LocalizationUtils localizationUtils;
 
     @PostMapping("")

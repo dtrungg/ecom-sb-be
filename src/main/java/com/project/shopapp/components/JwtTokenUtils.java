@@ -3,13 +3,13 @@ package com.project.shopapp.components;
 import com.project.shopapp.exceptions.InvalidParamException;
 import com.project.shopapp.models.Token;
 import com.project.shopapp.repositories.TokenRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -25,6 +25,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenUtils {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtils.class);
     private final TokenRepository tokenRepository;
 
     @Value("${jwt.expiration}")
@@ -92,12 +93,26 @@ public class JwtTokenUtils {
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        String phoneNumber = extractPhoneNumber(token);
-        Token tempToken = tokenRepository.findByToken(token);
-        if (tempToken == null || tempToken.isRevoked() == true) {
-            return false;
+        try {
+            String phoneNumber = extractPhoneNumber(token);
+            Token tempToken = tokenRepository.findByToken(token);
+
+            if (tempToken == null || tempToken.isRevoked() == true) {
+                return false;
+            }
+
+            return (phoneNumber.equals(userDetails.getUsername()))
+                    && !isTokenExpired(token);
+        } catch (MalformedJwtException e) {
+            logger.error("Invalid JWT token: {}", e.getMessage());
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT token is expired: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.error("JWT token is unsupported: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.error("JWT claims string is empty: {}", e.getMessage());
         }
-        return (phoneNumber.equals(userDetails.getUsername()))
-                && !isTokenExpired(token);
+
+        return false;
     }
 }

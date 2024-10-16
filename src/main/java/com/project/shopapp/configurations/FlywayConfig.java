@@ -32,7 +32,7 @@ public class FlywayConfig {
                 .baselineVersion("0")
                 .load();
         flyway.migrate();//run .sql file, IF VERSION IS NEWER
-        System.out.println("migrating...");
+//        System.out.println("migrating...");
         return flyway;
     }
 
