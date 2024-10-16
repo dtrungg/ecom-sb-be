@@ -2,6 +2,7 @@ package com.project.shopapp.components;
 
 import com.project.shopapp.exceptions.InvalidParamException;
 import com.project.shopapp.models.Token;
+import com.project.shopapp.models.User;
 import com.project.shopapp.repositories.TokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -92,16 +93,16 @@ public class JwtTokenUtils {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public boolean validateToken(String token, UserDetails userDetails) {
+    public boolean validateToken(String token, User user) {
         try {
             String phoneNumber = extractPhoneNumber(token);
             Token tempToken = tokenRepository.findByToken(token);
 
-            if (tempToken == null || tempToken.isRevoked() == true) {
+            if (tempToken == null || tempToken.isRevoked() == true || !user.isActive()) {
                 return false;
             }
 
-            return (phoneNumber.equals(userDetails.getUsername()))
+            return (phoneNumber.equals(user.getUsername()))
                     && !isTokenExpired(token);
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
