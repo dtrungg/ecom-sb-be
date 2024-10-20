@@ -4,7 +4,7 @@ import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.OrderDetailDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.OrderDetail;
-import com.project.shopapp.responses.OrderDetailResponse;
+import com.project.shopapp.responses.order.OrderDetailResponse;
 import com.project.shopapp.services.orderdetail.OrderDetailService;
 import com.project.shopapp.utils.MessageKeys;
 import io.swagger.v3.oas.annotations.Operation;

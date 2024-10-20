@@ -2,7 +2,7 @@ package com.project.shopapp.controllers;
 
 import com.project.shopapp.dtos.CommentDTO;
 import com.project.shopapp.models.User;
-import com.project.shopapp.responses.CommentResponse;
+import com.project.shopapp.responses.comment.CommentResponse;
 import com.project.shopapp.services.comment.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
