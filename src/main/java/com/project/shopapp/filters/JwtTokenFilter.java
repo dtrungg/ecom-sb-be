@@ -33,8 +33,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             if (isBypassToken(request)) {
                 filterChain.doFilter(request, response); //enable bypass
@@ -87,13 +86,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/users/refreshToken", apiPrefix), "POST"),
 
                 // Swagger
-                Pair.of("/api-docs","GET"),
-                Pair.of("/api-docs/**","GET"),
-                Pair.of("/swagger-resources","GET"),
-                Pair.of("/swagger-resources/**","GET"),
-                Pair.of("/configuration/ui","GET"),
-                Pair.of("/configuration/security","GET"),
-                Pair.of("/swagger-ui/**","GET"),
+                Pair.of("/api-docs", "GET"),
+                Pair.of("/api-docs/**", "GET"),
+                Pair.of("/swagger-resources", "GET"),
+                Pair.of("/swagger-resources/**", "GET"),
+                Pair.of("/configuration/ui", "GET"),
+                Pair.of("/configuration/security", "GET"),
+                Pair.of("/swagger-ui/**", "GET"),
                 Pair.of("/swagger-ui.html", "GET"),
                 Pair.of("/swagger-ui/index.html", "GET")
         );

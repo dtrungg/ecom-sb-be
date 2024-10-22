@@ -13,6 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class CouponService implements ICouponService {
+
     private final CouponRepository couponRepository;
     private final CouponConditionRepository couponConditionRepository;
 

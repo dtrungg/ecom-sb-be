@@ -4,6 +4,7 @@ import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.OrderDetailDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.OrderDetail;
+import com.project.shopapp.responses.ResponseObject;
 import com.project.shopapp.responses.order.OrderDetailResponse;
 import com.project.shopapp.services.orderdetail.OrderDetailService;
 import com.project.shopapp.utils.MessageKeys;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,20 +29,25 @@ public class OrderDetailController {
     //Thêm mới 1 order detail
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
-    public ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO) {
-        try {
-            OrderDetail newOrderDetail = orderDetailService.createOrderDetail(orderDetailDTO);
-            return ResponseEntity.ok().body(OrderDetailResponse.fromOrderDetail(newOrderDetail));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-
+    public ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO) throws Exception {
+        OrderDetail newOrderDetail = orderDetailService.createOrderDetail(orderDetailDTO);
+        OrderDetailResponse orderDetailResponse = OrderDetailResponse.fromOrderDetail(newOrderDetail);
+        return ResponseEntity.ok(ResponseObject.builder()
+                .message("Create order detail successfully")
+                .status(HttpStatus.CREATED)
+                .data(orderDetailResponse)
+                .build());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrderDetail(@Valid @PathVariable("id") Long id) throws DataNotFoundException {
         OrderDetail orderDetail = orderDetailService.getOrderDetail(id);
-        return ResponseEntity.ok().body(OrderDetailResponse.fromOrderDetail(orderDetail));
+        OrderDetailResponse orderDetailResponse = OrderDetailResponse.fromOrderDetail(orderDetail);
+        return ResponseEntity.ok(ResponseObject.builder()
+                .message("Get order detail successfully")
+                .status(HttpStatus.OK)
+                .data(orderDetailResponse)
+                .build());
     }
 
     //lấy ra danh sách các order_details của 1 order nào đó
@@ -50,20 +57,24 @@ public class OrderDetailController {
         List<OrderDetailResponse> orderDetailResponses = orderDetails.stream()
                 .map(OrderDetailResponse::fromOrderDetail)
                 .toList();
-        return ResponseEntity.ok(orderDetailResponses);
+        return ResponseEntity.ok(ResponseObject.builder()
+                .message("Get order details by orderId successfully")
+                .status(HttpStatus.OK)
+                .data(orderDetailResponses)
+                .build());
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<?> updateOrderDetail(@Valid @PathVariable("id") Long id,
-                                               @RequestBody OrderDetailDTO orderDetailDTO) {
-        try {
-            OrderDetail orderDetail = orderDetailService.updateOrderDetail(id, orderDetailDTO);
-            return ResponseEntity.ok().body(orderDetail);
-        } catch (DataNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+                                               @RequestBody OrderDetailDTO orderDetailDTO) throws DataNotFoundException, Exception {
+        OrderDetail orderDetail = orderDetailService.updateOrderDetail(id, orderDetailDTO);
+        return ResponseEntity.ok(ResponseObject.builder()
+                .message("Update order detail successfully")
+                .status(HttpStatus.OK)
+                .data(orderDetail)
+                .build());
     }
 
     @DeleteMapping("/{id}")
@@ -71,7 +82,9 @@ public class OrderDetailController {
     @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<?> deleteOrderDetail(@Valid @PathVariable("id") Long id) {
         orderDetailService.deleteById(id);
-        return ResponseEntity.ok()
-                .body(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_DETAIL_SUCCESSFULLY));
+        return ResponseEntity.ok(ResponseObject.builder()
+                .message(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_DETAIL_SUCCESSFULLY))
+                .build());
+
     }
 }

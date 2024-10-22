@@ -2,6 +2,7 @@ package com.project.shopapp.controllers;
 
 import com.project.shopapp.dtos.CommentDTO;
 import com.project.shopapp.models.User;
+import com.project.shopapp.responses.ResponseObject;
 import com.project.shopapp.responses.comment.CommentResponse;
 import com.project.shopapp.services.comment.CommentService;
 import jakarta.validation.Valid;
@@ -42,38 +43,39 @@ public class CommentController {
     public ResponseEntity<?> updateComment(
             @PathVariable("id") Long commentId,
             @Valid @RequestBody CommentDTO commentDTO
-    ) {
-        try {
-            User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (!Objects.equals(loginUser.getId(), commentDTO.getUserId())) {
-                return ResponseEntity.badRequest().body("You cannot update another user's comment");
-            }
-            commentService.updateComment(commentId, commentDTO);
-            return ResponseEntity.ok("Update comment successfully");
-        } catch (Exception e) {
-            // Handle and log the exception
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred during comment update.");
+    ) throws Exception {
+        User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!Objects.equals(loginUser.getId(), commentDTO.getUserId())) {
+            return ResponseEntity.badRequest().body(ResponseObject.builder()
+                    .message("You cannot update another user's comment")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build());
+
         }
+        commentService.updateComment(commentId, commentDTO);
+        return ResponseEntity.ok(ResponseObject.builder()
+                .message("Update comment successfully")
+                .status(HttpStatus.OK)
+                .build());
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
-    public ResponseEntity<?> insertComment(
+    public ResponseEntity<ResponseObject> insertComment(
             @Valid @RequestBody CommentDTO commentDTO
     ) {
-        try {
-            // Insert the new comment
-            User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (loginUser.getId() != commentDTO.getUserId()) {
-                return ResponseEntity.badRequest().body("You cannot comment as another user");
-            }
-            commentService.insertComment(commentDTO);
-            return ResponseEntity.ok("Insert comment successfully");
-        } catch (Exception e) {
-            // Handle and log the exception
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("An error occurred during comment insertion.");
+        // Insert the new comment
+        User loginUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (loginUser.getId() != commentDTO.getUserId()) {
+            return ResponseEntity.badRequest().body(ResponseObject.builder()
+                    .message("You cannot comment as another user")
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build());
         }
+        commentService.insertComment(commentDTO);
+        return ResponseEntity.ok(ResponseObject.builder()
+                .message("Insert comment successfully")
+                .status(HttpStatus.OK)
+                .build());
     }
 }
